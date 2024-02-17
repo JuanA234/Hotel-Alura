@@ -1,4 +1,4 @@
-package views;
+package com.alura.views;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -6,6 +6,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import com.alura.controller.HuespedController;
+import com.alura.controller.ReservasController;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -38,6 +42,8 @@ public class Busqueda extends JFrame {
 	private JLabel labelAtras;	
 	private JLabel labelExit;
 	int xMouse, yMouse;
+	private HuespedController huespedController;
+	private ReservasController reservasController; 
 
 	/**
 	 * Launch the application.
@@ -120,6 +126,8 @@ public class Busqueda extends JFrame {
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHuespedes);
 		panel.addTab("Huéspedes", new ImageIcon(Busqueda.class.getResource("/imagenes/pessoas.png")), scroll_tableHuespedes, null);
 		scroll_tableHuespedes.setVisible(true);
+		
+		cargarTablaHuesped();
 		
 		JLabel lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(Busqueda.class.getResource("/imagenes/Ha-100px.png")));
@@ -262,6 +270,13 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 	
+private void cargarTablaHuesped() {
+	
+		var huesped = this.tbHuespedes
+		// TODO Auto-generated method stub
+		
+	}
+
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();
