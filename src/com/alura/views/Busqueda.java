@@ -29,6 +29,7 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.SQLException;
 
 @SuppressWarnings("serial")
 public class Busqueda extends JFrame {
@@ -65,6 +66,10 @@ public class Busqueda extends JFrame {
 	 * Create the frame.
 	 */
 	public Busqueda() {
+		
+		this.huespedController = new HuespedController();
+		this.reservasController = new ReservasController();
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Busqueda.class.getResource("/imagenes/lupa2.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -272,9 +277,20 @@ public class Busqueda extends JFrame {
 	
 private void cargarTablaHuesped() {
 	
-		var huesped = this.tbHuespedes
-		// TODO Auto-generated method stub
 		
+		try {
+			var huesped = this.huespedController.listar();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+		try {
+		// TODO Auto-generated method stub
+		}catch(Exception e) {
+		throw e;
+		}
 	}
 
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
