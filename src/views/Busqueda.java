@@ -35,7 +35,7 @@ public class Busqueda extends JFrame {
 	private JTable tbReservas;
 	private DefaultTableModel modelo;
 	private DefaultTableModel modeloHuesped;
-	private JLabel labelAtras;
+	private JLabel labelAtras;	
 	private JLabel labelExit;
 	int xMouse, yMouse;
 
