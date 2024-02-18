@@ -1,7 +1,6 @@
 package com.alura.controller;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.alura.factory.ConnectionFactory;
 
 public class HuespedController {
 	
@@ -21,9 +22,7 @@ public class HuespedController {
 	}
 		
 	public List<Map<String, String>> listar() throws SQLException{
-		Connection con = DriverManager.getConnection(
-				"jdbc:mysql://localhost/hotel_alura?useTimeZone=true&serverTimeZone=UTC",
-				"root", "12345");
+		Connection con = new ConnectionFactory().recuperaConexion();
 		
 		Statement statement = con.createStatement();
 		
