@@ -113,6 +113,8 @@ public class Busqueda extends JFrame {
 				null);
 		scroll_table.setVisible(true);
 
+		cargarTablaReservas();
+
 		tbHuespedes = new JTable();
 		tbHuespedes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbHuespedes.setFont(new Font("Roboto", Font.PLAIN, 16));
@@ -275,6 +277,24 @@ public class Busqueda extends JFrame {
 		lblEliminar.setBounds(0, 0, 122, 35);
 		btnEliminar.add(lblEliminar);
 		setResizable(false);
+	}
+
+	private void cargarTablaReservas() {
+
+		try {
+			var reservas = this.reservasController.listar();
+			try {
+				reservas.forEach(
+						reserva -> modelo.addRow(new Object[] { reserva.get("ID"), reserva.get("FECHA_ENTRADA"),
+								reserva.get("FECHA_SALIDA"), reserva.get("VALOR"), reserva.get("FORMA_DE_PAGO") }));
+			} catch (Exception e) {
+				throw e;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	private void cargarTablaHuesped() {
