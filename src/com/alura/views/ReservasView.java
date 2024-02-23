@@ -14,7 +14,9 @@ import com.toedter.calendar.JDateChooser;
 import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
-import java.text.Format;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -37,6 +39,7 @@ public class ReservasView extends JFrame {
 	int xMouse, yMouse;
 	private JLabel labelExit;
 	private JLabel labelAtras;
+	private float valor = 0;
 
 	/**
 	 * Launch the application.
@@ -52,6 +55,18 @@ public class ReservasView extends JFrame {
 				}
 			}
 		});
+	}
+	
+	private long diasEntreDosFechas(JDateChooser txtFechaEntrada2, JDateChooser txtFechaSalida2) {
+		long dias = 0;
+		try{
+			long dif = txtFechaSalida2.getDate().getTime() - txtFechaEntrada2.getDate().getTime();
+			dias = TimeUnit.DAYS.convert(dif,TimeUnit.MILLISECONDS);
+		}catch(Exception e) {
+			
+		}
+		return dias;
+		
 	}
 
 	/**
@@ -262,11 +277,6 @@ public class ReservasView extends JFrame {
 		txtFechaSalida.getCalendarButton().setBounds(267, 1, 21, 31);
 		txtFechaSalida.setBackground(Color.WHITE);
 		txtFechaSalida.setFont(new Font("Roboto", Font.PLAIN, 18));
-		txtFechaSalida.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				//Activa el evento, después del usuario seleccionar las fechas se debe calcular el valor de la reserva
-			}
-		});
 		txtFechaSalida.setDateFormatString("yyyy-MM-dd");
 		txtFechaSalida.getCalendarButton().setBackground(SystemColor.textHighlight);
 		txtFechaSalida.setBorder(new LineBorder(new Color(255, 255, 255), 0));
@@ -282,6 +292,21 @@ public class ReservasView extends JFrame {
 		txtValor.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		panel.add(txtValor);
 		txtValor.setColumns(10);
+		txtFechaSalida.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				//Activa el evento, después del usuario seleccionar las fechas se debe calcular el valor de la reserva
+				float tasaDiaria = 20;
+				long dias = diasEntreDosFechas(txtFechaEntrada, txtFechaSalida);
+				System.out.println(dias);
+			if(dias<=0) {
+					valor = tasaDiaria;
+				}
+				else {
+					valor = tasaDiaria*dias;
+				}
+				txtValor.setText(String.valueOf(valor));
+			}
+		});
 
 
 		txtFormaPago = new JComboBox();
@@ -296,22 +321,37 @@ public class ReservasView extends JFrame {
 		btnsiguiente.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (ReservasView.txtFechaEntrada.getDate() != null && ReservasView.txtFechaSalida.getDate() != null) {		
-					RegistroHuesped registro = new RegistroHuesped();
-					registro.setVisible(true);
+				if (ReservasView.txtFechaEntrada.getDate() != null && ReservasView.txtFechaSalida.getDate() != null)
+				{
+					if (diasEntreDosFechas(txtFechaEntrada, txtFechaSalida)<0) {
+						JOptionPane.showMessageDialog(null, "La fecha de check out debe ser despues a la fecha de check in");
+					} else {
+
+						guardar();
+						RegistroHuesped registro = new RegistroHuesped();
+						registro.setVisible(true);
+					}
 				} else {
 					JOptionPane.showMessageDialog(null, "Debes llenar todos los campos.");
 				}
-			}						
+			}
+
+			private void guardar() {
+								
+			}					 	
 		});
 		btnsiguiente.setLayout(null);
 		btnsiguiente.setBackground(SystemColor.textHighlight);
 		btnsiguiente.setBounds(238, 493, 122, 35);
 		panel.add(btnsiguiente);
 		btnsiguiente.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		
+		
 
 
 	}
+	
+
 		
 	//Código que permite mover la ventana por la pantalla según la posición de "x" y "y"	
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
