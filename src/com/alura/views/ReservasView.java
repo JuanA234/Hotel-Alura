@@ -10,18 +10,21 @@ import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JTextField;
+
+import com.alura.controller.ReservasController;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
-
-import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeListener;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
@@ -40,6 +43,7 @@ public class ReservasView extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	private float valor = 0;
+	private ReservasController reservasController;
 
 	/**
 	 * Launch the application.
@@ -74,6 +78,7 @@ public class ReservasView extends JFrame {
 	 */
 	public ReservasView() {
 		super("Reserva");
+		this.reservasController = new ReservasController();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ReservasView.class.getResource("/imagenes/aH-40px.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 560);
@@ -297,7 +302,6 @@ public class ReservasView extends JFrame {
 				//Activa el evento, después del usuario seleccionar las fechas se debe calcular el valor de la reserva
 				float tasaDiaria = 20;
 				long dias = diasEntreDosFechas(txtFechaEntrada, txtFechaSalida);
-				System.out.println(dias);
 			if(dias<=0) {
 					valor = tasaDiaria;
 				}
@@ -336,15 +340,14 @@ public class ReservasView extends JFrame {
 				}
 			}
 
-			private void guardar() {
-								
-			}					 	
+							 	
 		});
 		btnsiguiente.setLayout(null);
 		btnsiguiente.setBackground(SystemColor.textHighlight);
 		btnsiguiente.setBounds(238, 493, 122, 35);
 		panel.add(btnsiguiente);
 		btnsiguiente.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		
 		
 		
 
@@ -358,6 +361,24 @@ public class ReservasView extends JFrame {
 	        xMouse = evt.getX();
 	        yMouse = evt.getY();
 	    }
+	 
+	 private void guardar() { 		
+		 var reserva = new HashMap<String, String>();
+		 SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+		 String fecha_entrada = String.valueOf(formato.format(txtFechaEntrada.getDate()));
+		 String fecha_salida = String.valueOf(formato.format(txtFechaEntrada.getDate()));
+		 reserva.put("FECHA_ENTRADA",fecha_entrada);
+		 reserva.put("FECHA_SALIDA", fecha_salida);
+		 reserva.put("VALOR", txtValor.getText());
+		 reserva.put("FORMA_DE_PAGO", String.valueOf(txtFormaPago.getSelectedItem()));
+		 
+			try {
+				this.reservasController.guardar(reserva);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
+		}	
 
 	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
 	        int x = evt.getXOnScreen();

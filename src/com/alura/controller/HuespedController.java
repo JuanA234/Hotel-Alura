@@ -35,6 +35,7 @@ public class HuespedController {
 		
 		List<Map<String, String>> resultado = new ArrayList<>();
 		
+		//Mientras haya una fila en el resulSet, podemos iterar este objeto mediante resulSet.next()
 		while(resultSet.next()) {
 			Map<String, String> fila = new HashMap<>();
 			fila.put("ID", String.valueOf(resultSet.getInt("ID")));

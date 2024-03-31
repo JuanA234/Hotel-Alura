@@ -40,4 +40,23 @@ public class ReservasController {
 		return resultado;
 
 	}
+	
+	public void guardar(Map<String, String> reserva) throws SQLException {
+		 Connection con = new ConnectionFactory().recuperaConexion();
+		 Statement statement = con.createStatement();
+		 
+		 statement.execute("INSERT INTO reservas (FECHA_ENTRADA, FECHA_SALIDA, VALOR, FORMA_DE_PAGO) "
+		 		+ "VALUES('" + reserva.get("FECHA_ENTRADA") + "', '" 
+		 		+ reserva.get("FECHA_SALIDA") + "', "
+		 		+ reserva.get("VALOR") + ", '"
+		 		+ reserva.get("FORMA_DE_PAGO") + "')", Statement.RETURN_GENERATED_KEYS);
+		 
+		 ResultSet resultSet = statement.getGeneratedKeys();
+		 
+		 while(resultSet.next()) {
+			 System.out.println("Fue insertado el producto de ID " + resultSet.getInt(1));
+			 
+		 }
+	}
+	
 }

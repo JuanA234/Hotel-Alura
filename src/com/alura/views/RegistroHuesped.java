@@ -6,6 +6,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
+
+import com.alura.controller.HuespedController;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
@@ -20,6 +22,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.Format;
+import java.util.Calendar;
+import java.util.Date;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
@@ -29,15 +33,16 @@ import javax.swing.JSeparator;
 public class RegistroHuesped extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField txtNombre;
-	private JTextField txtApellido;
-	private JTextField txtTelefono;
-	private JTextField txtNreserva;
-	private JDateChooser txtFechaN;
-	private JComboBox<Format> txtNacionalidad;
+	public static JTextField txtNombre;
+	public static JTextField txtApellido;
+	public static JTextField txtTelefono;
+	public static JTextField txtNreserva;
+	public static JDateChooser txtFechaN;
+	public static JComboBox<Format> txtNacionalidad;
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	private HuespedController huespedController;
 
 	/**
 	 * Launch the application.
@@ -54,12 +59,32 @@ public class RegistroHuesped extends JFrame {
 			}
 		});
 	}
+	
+	private int edadHuesped(JDateChooser fechaN) {
+		Date fechaActual = new Date();
+		Calendar calendarNacimiento = Calendar.getInstance();
+        calendarNacimiento.setTime(fechaN.getDate());
+        
+        Calendar calendarActual = Calendar.getInstance();
+        calendarActual.setTime(fechaActual);
+        // Calcular la diferencia de años, meses y días
+        int añosDiferencia = calendarActual.get(Calendar.YEAR) - calendarNacimiento.get(Calendar.YEAR);
+        int mesesDiferencia = calendarActual.get(Calendar.MONTH) - calendarNacimiento.get(Calendar.MONTH);
+        int diasDiferencia = calendarActual.get(Calendar.DAY_OF_MONTH) - calendarNacimiento.get(Calendar.DAY_OF_MONTH);
+        
+        // Ajustar la diferencia de meses y días si es necesario
+        if (mesesDiferencia < 0 || (mesesDiferencia == 0 && diasDiferencia < 0)) {
+            añosDiferencia--;
+        }
+		return añosDiferencia;
+		
+	}
 
 	/**
 	 * Create the frame.
 	 */
 	public RegistroHuesped() {
-		
+		this.huespedController = new HuespedController();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHuesped.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 634);
@@ -241,7 +266,7 @@ public class RegistroHuesped extends JFrame {
 		separator_1_2_4.setForeground(new Color(12, 138, 199));
 		separator_1_2_4.setBackground(new Color(12, 138, 199));
 		contentPane.add(separator_1_2_4);
-		
+	
 		JSeparator separator_1_2_5 = new JSeparator();
 		separator_1_2_5.setBounds(560, 529, 289, 2);
 		separator_1_2_5.setForeground(new Color(12, 138, 199));
@@ -253,7 +278,22 @@ public class RegistroHuesped extends JFrame {
 		btnguardar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				if(RegistroHuesped.txtNombre.getText() != "" && RegistroHuesped.txtApellido.getText() != "" && 
+						RegistroHuesped.txtTelefono.getText() != "" && RegistroHuesped.txtFechaN.getDate() != null) {
+					
+					int edadHuesped = edadHuesped(txtFechaN);
+					System.out.println(edadHuesped);
+					if(edadHuesped>118 || edadHuesped<6) {
+						JOptionPane.showMessageDialog(null, "Por favor agregue un valor valido para la edad");
+					}else {
+						guardar();
+						MenuUsuario menuUsuario = new MenuUsuario();
+					}
+				}else {
+					JOptionPane.showMessageDialog(null, "Debes llenar todos los campos.");
+				}
 			}
+
 		});
 		btnguardar.setLayout(null);
 		btnguardar.setBackground(new Color(12, 138, 199));
@@ -321,6 +361,12 @@ public class RegistroHuesped extends JFrame {
 	        xMouse = evt.getX();
 	        yMouse = evt.getY();
 	    }
+	 
+
+		private void guardar() {
+			// TODO Auto-generated method stub
+			
+		}
 
 	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
 	        int x = evt.getXOnScreen();
