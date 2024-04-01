@@ -21,9 +21,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.SQLException;
 import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
@@ -278,8 +281,8 @@ public class RegistroHuesped extends JFrame {
 		btnguardar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(RegistroHuesped.txtNombre.getText() != "" && RegistroHuesped.txtApellido.getText() != "" && 
-						RegistroHuesped.txtTelefono.getText() != "" && RegistroHuesped.txtFechaN.getDate() != null) {
+				if(!RegistroHuesped.txtNombre.getText().isEmpty() && !RegistroHuesped.txtApellido.getText().isEmpty() && 
+						!RegistroHuesped.txtTelefono.getText().isEmpty() && RegistroHuesped.txtFechaN.getDate() != null) {
 					
 					int edadHuesped = edadHuesped(txtFechaN);
 					System.out.println(edadHuesped);
@@ -288,6 +291,8 @@ public class RegistroHuesped extends JFrame {
 					}else {
 						guardar();
 						MenuUsuario menuUsuario = new MenuUsuario();
+						menuUsuario.setVisible(true);
+						dispose();
 					}
 				}else {
 					JOptionPane.showMessageDialog(null, "Debes llenar todos los campos.");
@@ -364,8 +369,22 @@ public class RegistroHuesped extends JFrame {
 	 
 
 		private void guardar() {
-			// TODO Auto-generated method stub
-			
+			var huesped = new HashMap<String, String>();
+			SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+			String fecha_nacimiento = String.valueOf(formato.format(txtFechaN.getDate()));
+			huesped.put("NOMBRE", txtNombre.getText());
+			huesped.put("APELLIDO", txtApellido.getText());
+			huesped.put("FECHA_DE_NACIMIENTO", fecha_nacimiento);
+			huesped.put("NACIONALIDAD", String.valueOf(txtNacionalidad.getSelectedItem()));
+			huesped.put("TELEFONO", txtTelefono.getText());
+			huesped.put("ID_RESERVA", txtNreserva.getText());
+
+			try {
+				this.huespedController.guardar(huesped);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
