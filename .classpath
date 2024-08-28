@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-10">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/jgoodies-common-1.2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/jgoodies-looks-2.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/junit-4.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/mysql-connector-j-8.0.32.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/c3p0-0.9.5.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ASUS/OneDrive/Documents/Bootcamp oracle one/challenge-one-alura-hotel-latam/JARS/mchange-commons-java-0.2.16.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
