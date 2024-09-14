@@ -113,7 +113,7 @@ public class Busqueda extends JFrame {
 				null);
 		scroll_table.setVisible(true);
 
-		cargarTablaReservas();
+		
 
 		tbHuespedes = new JTable();
 		tbHuespedes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -131,7 +131,8 @@ public class Busqueda extends JFrame {
 				scroll_tableHuespedes, null);
 		scroll_tableHuespedes.setVisible(true);
 
-		cargarTablaHuesped();
+		
+		cargarTablas();
 
 		JLabel lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(Busqueda.class.getResource("/imagenes/Ha-100px.png")));
@@ -233,7 +234,34 @@ public class Busqueda extends JFrame {
 		btnbuscar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
+				String entrada = txtBuscar.getText();
+				
+				String[] partes = entrada.split(" ");
+				
+				 String apellido = "";
+				 int numero = 0;
+				 
+				  // Recorremos el array de partes y verificamos si es un número o palabra
+			        for (String parte : partes) {
+			            if (esNumero(parte)) {
+			                numero = Integer.parseInt(parte); 
+			            } else {
+			            	apellido = parte; 
+			            }
+			        }
+				buscarRegistro(numero, apellido);
+				
+						
+			}
+			 // Función auxiliar para verificar si un String es un número
+			private boolean esNumero(String parte) {
+				try {
+					Double.parseDouble(parte);
+					return true;
+				}catch(NumberFormatException e) {
+					return false;	
+				}
+				
 			}
 		});
 		btnbuscar.setLayout(null);
@@ -279,11 +307,17 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 
-	private void cargarTablaReservas() {
+	
+
+	private void cargarTablas() {
 
 		try {
 			var reservas = this.reservasController.listar();
+			var huespedes = this.huespedController.listar();
 			try {
+				huespedes.forEach(huesped -> modeloHuesped.addRow(new Object[] { huesped.get("ID"),
+						huesped.get("NOMBRE"), huesped.get("APELLIDO"), huesped.get("FECHA_DE_NACIMIENTO"),
+						huesped.get("NACIONALIDAD"), huesped.get("TELEFONO"), huesped.get("ID_RESERVA") }));
 				reservas.forEach(
 						reserva -> modelo.addRow(new Object[] { reserva.get("ID"), reserva.get("FECHA_ENTRADA"),
 								reserva.get("FECHA_SALIDA"), reserva.get("VALOR"), reserva.get("FORMA_DE_PAGO") }));
@@ -296,25 +330,34 @@ public class Busqueda extends JFrame {
 		}
 
 	}
-
-	private void cargarTablaHuesped() {
-
+	
+	private void buscarRegistro(int numero, String apellido) {
+		
 		try {
-			var huespedes = this.huespedController.listar();
-			try {
+			
+			var huespedes = this.huespedController.busqueda(numero, apellido);
+			var reservas = this.reservasController.busqueda(numero);
+			
+			try{
+				modeloHuesped.setRowCount(0);
+				modelo.setRowCount(0);
 				huespedes.forEach(huesped -> modeloHuesped.addRow(new Object[] { huesped.get("ID"),
 						huesped.get("NOMBRE"), huesped.get("APELLIDO"), huesped.get("FECHA_DE_NACIMIENTO"),
 						huesped.get("NACIONALIDAD"), huesped.get("TELEFONO"), huesped.get("ID_RESERVA") }));
-			} catch (Exception e) {
-				throw e;
+				reservas.forEach(
+						reserva -> modelo.addRow(new Object[] { reserva.get("ID"), reserva.get("FECHA_ENTRADA"),
+								reserva.get("FECHA_SALIDA"), reserva.get("VALOR"), reserva.get("FORMA_DE_PAGO") }));
+				
+			}catch(Exception e) {
+				
 			}
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new RuntimeException(e);
 		}
-
 	}
-
+	
+	
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
 	private void headerMousePressed(java.awt.event.MouseEvent evt) {
 		xMouse = evt.getX();

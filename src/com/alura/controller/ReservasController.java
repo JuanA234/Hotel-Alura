@@ -1,6 +1,7 @@
 package com.alura.controller;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -57,11 +58,12 @@ public class ReservasController {
 			 System.out.println("Fue insertado el producto de ID " + resultSet.getInt(1));
 			 
 		 }
+		 con.close();
 		 
 	}
 	
 	public int obtenerUltimaReserva() throws SQLException {
-	    int resultado = -1; // Inicializar el resultado con un valor que indique error
+	    int resultado = -1; // Inicializar el resultado con un valor que indique error*
 	    try (Connection con = new ConnectionFactory().recuperaConexion();
 	         Statement statement = con.createStatement()) {
 	         
@@ -75,6 +77,35 @@ public class ReservasController {
 	    }
 	    
 	    return resultado;
+	}
+
+	public List<Map<String, String>> busqueda(int idReserva) throws SQLException {
+		Connection con = new ConnectionFactory().recuperaConexion();
+		String query = "SELECT ID, FECHA_ENTRADA, FECHA_SALIDA, VALOR, FORMA_DE_PAGO FROM reservas "
+				+ "WHERE ID = ?";
+		
+		PreparedStatement statement = con.prepareStatement(query);
+		statement.setInt(1, idReserva);
+		
+		
+		ResultSet resultSet = statement.executeQuery();
+		
+
+		List<Map<String, String>> resultado = new ArrayList<>();
+
+		while (resultSet.next()) {
+			Map<String, String> fila = new HashMap<>();
+			fila.put("ID", String.valueOf(resultSet.getInt("ID")));
+			fila.put("FECHA_ENTRADA", String.valueOf(resultSet.getDate("FECHA_ENTRADA")));
+			fila.put("FECHA_SALIDA", String.valueOf(resultSet.getDate("FECHA_SALIDA")));
+			fila.put("VALOR", String.valueOf(resultSet.getFloat("VALOR")));
+			fila.put("FORMA_DE_PAGO", resultSet.getString("FORMA_DE_PAGO"));
+
+			resultado.add(fila);
+
+		}
+		con.close();
+		return resultado;
 	}
 	
 }
