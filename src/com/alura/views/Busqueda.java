@@ -17,9 +17,12 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Optional;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -282,6 +285,13 @@ public class Busqueda extends JFrame {
 		btnEditar.setBackground(new Color(12, 138, 199));
 		btnEditar.setBounds(635, 508, 122, 35);
 		btnEditar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		btnEditar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				editarHuesped();
+				
+			}
+		});
 		contentPane.add(btnEditar);
 
 		JLabel lblEditar = new JLabel("EDITAR");
@@ -296,6 +306,13 @@ public class Busqueda extends JFrame {
 		btnEliminar.setBackground(new Color(12, 138, 199));
 		btnEliminar.setBounds(767, 508, 122, 35);
 		btnEliminar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		btnEliminar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				eliminarHuesped();
+				
+			}
+		});
 		contentPane.add(btnEliminar);
 
 		JLabel lblEliminar = new JLabel("ELIMINAR");
@@ -357,7 +374,51 @@ public class Busqueda extends JFrame {
 		}
 	}
 	
+	private void eliminarHuesped() {
+		if(tieneFilaElegida()) {
+			Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+			.ifPresentOrElse(fila->{
+				Integer id = Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+				
+				int cantidadEliminada = 0;
+				try {
+					cantidadEliminada = this.huespedController.eliminar(id);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				modeloHuesped.removeRow(tbHuespedes.getSelectedRow());
+				JOptionPane.showMessageDialog(this, cantidadEliminada +  " Item eliminado con éxito");
+			}, ()->	JOptionPane.showMessageDialog(this, "Por favor elige un item"));
+		}
+		
+	}
 	
+	private void editarHuesped() {
+		if(tieneFilaElegida()) {
+			Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+			.ifPresentOrElse(fila->{
+				Integer id = Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+				int cantidadActualizada = 0;
+				
+				JOptionPane.showMessageDialog(this, cantidadActualizada +  " Item actualizad con éxito");
+			}
+					,()->	JOptionPane.showMessageDialog(this, "Por favor elige un item"));
+		}
+	}
+	
+	private boolean tieneFilaElegida() {
+		boolean siga = false;
+		int filaSeleccionada = tbHuespedes. getSelectedRow();
+		if(filaSeleccionada == -1) {
+			JOptionPane.showMessageDialog(this, "Por favor elige un item");
+		}else {
+			siga = true;
+		}
+		return siga;
+	}
+
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
 	private void headerMousePressed(java.awt.event.MouseEvent evt) {
 		xMouse = evt.getX();

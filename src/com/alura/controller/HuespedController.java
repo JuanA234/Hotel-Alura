@@ -18,7 +18,16 @@ public class HuespedController {
 
 	}
 
-	public void eliminar() {
+	public int eliminar(Integer id) throws SQLException {
+		
+		Connection con = new ConnectionFactory().recuperaConexion();
+
+		Statement statement = con.createStatement();
+		
+		statement.execute("DELETE FROM huespedes WHERE ID = " + id);
+		
+		return statement.getUpdateCount();
+
 
 	}
 
