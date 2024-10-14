@@ -11,10 +11,52 @@ import java.util.List;
 import java.util.Map;
 
 import com.alura.factory.ConnectionFactory;
+import com.mysql.cj.jdbc.DatabaseMetaData;
 
 public class HuespedController {
 
-	public void editar() {
+	public int editar(Map<int[], Object> cambios, Integer id) throws SQLException {
+		
+		Connection con = new ConnectionFactory().recuperaConexion();
+		
+		String[] nombresColumnas = {"", "NOMBRE", "APELLIDO", "FECHA_DE_NACIMIENTO", "NACIONALIDAD", 
+				"TELEFONO", "ID_RESERVAS"};
+		
+		int filasActualizadas = 0;
+		
+		//Iterar sobre los cambios
+		for(Map.Entry<int[], Object> entry: cambios.entrySet()) {
+			int[] cell = entry.getKey();
+			int fila = cell[0]; // Fila de la tabla
+			int columna = cell[1]; // Fila de la columna
+			
+			Object nuevoValor = entry.getValue(); //Nuevo valor;
+			
+			String nombreColumna = nombresColumnas[columna];
+			
+			String query = "UPDATE huespedes SET " + nombreColumna + " = ? WHERE ID = ?";
+			
+			PreparedStatement statement = con.prepareStatement(query);
+			
+			if(nuevoValor instanceof String){
+				statement.setString(1, (String) nuevoValor);
+			}else if(nuevoValor instanceof Integer) {
+				statement.setInt(1, (int) nuevoValor);
+			}else if(nuevoValor instanceof Double) {
+				statement.setDouble(1, (double) nuevoValor);
+			}else {
+				statement.setObject(1, nuevoValor); //Maneja otros tipos de datos
+			}
+			
+			statement.setInt(2, id);
+			filasActualizadas = statement.executeUpdate();
+		}
+		
+		// Limpiar el mapa de cambios una vez que se han guardado
+        cambios.clear();
+    	con.close();
+    	
+    	return filasActualizadas;
 
 	}
 
@@ -26,7 +68,11 @@ public class HuespedController {
 		
 		statement.execute("DELETE FROM huespedes WHERE ID = " + id);
 		
-		return statement.getUpdateCount();
+		int cantidadEliminada = statement.getUpdateCount();
+		
+		con.close();
+		
+		return cantidadEliminada;
 
 
 	}

@@ -5,6 +5,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.alura.controller.HuespedController;
@@ -21,7 +23,9 @@ import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
@@ -72,6 +76,7 @@ public class Busqueda extends JFrame {
 
 		this.huespedController = new HuespedController();
 		this.reservasController = new ReservasController();
+		Map<int[], Object> cambios = new HashMap<>();
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Busqueda.class.getResource("/imagenes/lupa2.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -121,7 +126,14 @@ public class Busqueda extends JFrame {
 		tbHuespedes = new JTable();
 		tbHuespedes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbHuespedes.setFont(new Font("Roboto", Font.PLAIN, 16));
-		modeloHuesped = (DefaultTableModel) tbHuespedes.getModel();
+		modeloHuesped = new DefaultTableModel() {
+			public boolean isCellEditable(int fila, int columna) {
+                if (columna == 0) {
+                    return false;  // Estas columnas no son editables
+                }
+                return true;  // Todas las demás son editables
+            }
+		};
 		modeloHuesped.addColumn("Número de Huesped");
 		modeloHuesped.addColumn("Nombre");
 		modeloHuesped.addColumn("Apellido");
@@ -129,6 +141,9 @@ public class Busqueda extends JFrame {
 		modeloHuesped.addColumn("Nacionalidad");
 		modeloHuesped.addColumn("Telefono");
 		modeloHuesped.addColumn("Número de Reserva");
+		tbHuespedes.setModel(modeloHuesped);
+		
+		
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHuespedes);
 		panel.addTab("Huéspedes", new ImageIcon(Busqueda.class.getResource("/imagenes/pessoas.png")),
 				scroll_tableHuespedes, null);
@@ -232,6 +247,21 @@ public class Busqueda extends JFrame {
 		separator_1_2.setBackground(new Color(12, 138, 199));
 		separator_1_2.setBounds(539, 159, 193, 2);
 		contentPane.add(separator_1_2);
+		
+		
+		modeloHuesped.addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				int fila = e.getFirstRow();
+				int columna = e.getColumn();
+				Object nuevoValor = modeloHuesped.getValueAt(fila, columna);
+				cambios.put(new int[]{
+						fila, columna
+				}, nuevoValor);
+			}
+		});
+		
 
 		JPanel btnbuscar = new JPanel();
 		btnbuscar.addMouseListener(new MouseAdapter() {
@@ -288,7 +318,7 @@ public class Busqueda extends JFrame {
 		btnEditar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editarHuesped();
+				editarHuesped(cambios);
 				
 			}
 		});
@@ -395,18 +425,21 @@ public class Busqueda extends JFrame {
 		
 	}
 	
-	private void editarHuesped() {
+	private void editarHuesped(Map<int[], Object> cambios) {
+		int cantidadModificada = 0;
 		if(tieneFilaElegida()) {
-			Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
-			.ifPresentOrElse(fila->{
+			try {
 				Integer id = Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
-				int cantidadActualizada = 0;
-				
-				JOptionPane.showMessageDialog(this, cantidadActualizada +  " Item actualizad con éxito");
+				cantidadModificada = this.huespedController.editar(cambios, id);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-					,()->	JOptionPane.showMessageDialog(this, "Por favor elige un item"));
+			JOptionPane.showMessageDialog(this, cantidadModificada +  " Item modificado con éxito");
 		}
+		
 	}
+	
 	
 	private boolean tieneFilaElegida() {
 		boolean siga = false;
