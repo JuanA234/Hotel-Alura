@@ -253,12 +253,17 @@ public class Busqueda extends JFrame {
 			
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				int fila = e.getFirstRow();
-				int columna = e.getColumn();
-				Object nuevoValor = modeloHuesped.getValueAt(fila, columna);
-				cambios.put(new int[]{
-						fila, columna
-				}, nuevoValor);
+				if(e.getType() == TableModelEvent.DELETE) {
+					if (e.getFirstRow() >= 0 && e.getFirstRow() < tbHuespedes.getRowCount()) {
+						int fila = e.getFirstRow();
+						int columna = e.getColumn();
+						Object nuevoValor = modeloHuesped.getValueAt(fila, columna);
+						cambios.put(new int[]{
+								fila, columna
+						}, nuevoValor);
+			        }
+				}
+				
 			}
 		});
 		
@@ -409,17 +414,21 @@ public class Busqueda extends JFrame {
 			Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
 			.ifPresentOrElse(fila->{
 				Integer id = Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+				Integer filaSeleccionada = tbHuespedes.getSelectedRow();
+			
+					
+					int cantidadEliminada = 0;
+					try {
+						cantidadEliminada = this.huespedController.eliminar(id);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					modeloHuesped.removeRow(filaSeleccionada);
+					JOptionPane.showMessageDialog(this, cantidadEliminada +  " Item eliminado con éxito");
 				
-				int cantidadEliminada = 0;
-				try {
-					cantidadEliminada = this.huespedController.eliminar(id);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				modeloHuesped.removeRow(tbHuespedes.getSelectedRow());
-				JOptionPane.showMessageDialog(this, cantidadEliminada +  " Item eliminado con éxito");
+			
 			}, ()->	JOptionPane.showMessageDialog(this, "Por favor elige un item"));
 		}
 		

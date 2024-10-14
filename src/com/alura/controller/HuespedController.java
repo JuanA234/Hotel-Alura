@@ -27,7 +27,7 @@ public class HuespedController {
 		//Iterar sobre los cambios
 		for(Map.Entry<int[], Object> entry: cambios.entrySet()) {
 			int[] cell = entry.getKey();
-			int fila = cell[0]; // Fila de la tabla
+			int fila = cell[0]		; // Fila de la tabla
 			int columna = cell[1]; // Fila de la columna
 			
 			Object nuevoValor = entry.getValue(); //Nuevo valor;
@@ -64,9 +64,11 @@ public class HuespedController {
 		
 		Connection con = new ConnectionFactory().recuperaConexion();
 
-		Statement statement = con.createStatement();
+		PreparedStatement statement = con.prepareStatement("DELETE FROM huespedes WHERE ID = ? " );
 		
-		statement.execute("DELETE FROM huespedes WHERE ID = " + id);
+		statement.setInt(1, id);
+		
+		statement.execute(); 	
 		
 		int cantidadEliminada = statement.getUpdateCount();
 		
@@ -80,10 +82,10 @@ public class HuespedController {
 	public List<Map<String, String>> listar() throws SQLException {
 		Connection con = new ConnectionFactory().recuperaConexion();
 
-		Statement statement = con.createStatement();
-
-		statement.execute("SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO,"
+		PreparedStatement statement = con.prepareStatement("SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO,"
 				+ " NACIONALIDAD, TELEFONO, ID_RESERVA FROM huespedes");
+
+		statement.execute();
 
 		ResultSet resultSet = statement.getResultSet();
 
@@ -112,15 +114,19 @@ public class HuespedController {
 
 	public void guardar(HashMap<String, String> huesped) throws SQLException {
 		Connection con = new ConnectionFactory().recuperaConexion();
-		Statement statement = con.createStatement();
+		
+		PreparedStatement statement = con.prepareStatement("INSERT INTO huespedes (NOMBRE, APELLIDO,FECHA_DE_NACIMIENTO, NACIONALIDAD,"
+				+ " TELEFONO, ID_RESERVA) VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
-		statement.execute(
-				"INSERT INTO huespedes (NOMBRE, APELLIDO,FECHA_DE_NACIMIENTO, NACIONALIDAD, TELEFONO, ID_RESERVA) "
-						+ "VALUES('" + huesped.get("NOMBRE") + "', '" + huesped.get("APELLIDO") + "', '"
-						+ huesped.get("FECHA_DE_NACIMIENTO") + "', '" + huesped.get("NACIONALIDAD") + "', '"
-						+ huesped.get("TELEFONO") + "', " + huesped.get("ID_RESERVA") + ")",
-				Statement.RETURN_GENERATED_KEYS);
-
+		statement.setString(1, huesped.get("NOMBRE"));
+		statement.setString(2, huesped.get("APELLIDO"));
+		statement.setString(3, huesped.get("FECHA_DE_NACIMIENTO"));
+		statement.setString(4, huesped.get("NACIONALIDAD"));
+		statement.setString(5, huesped.get("TELEFONO"));
+		statement.setInt(6, Integer.valueOf(huesped.get("ID_RESERVA")));
+		
+		statement.execute();
+		
 		ResultSet resultSet = statement.getGeneratedKeys();
 
 		while (resultSet.next()) {
