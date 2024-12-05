@@ -15,157 +15,190 @@ import com.mysql.cj.jdbc.DatabaseMetaData;
 
 public class HuespedController {
 
-	public int editar(Map<int[], Object> cambios, Integer id) throws SQLException {
+	public int editar(Map<int[], Object> cambios, Integer id) throws SQLException{
+
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
+
+			String[] nombresColumnas = { "", "NOMBRE", "APELLIDO", "FECHA_DE_NACIMIENTO", "NACIONALIDAD", "TELEFONO",
+					"ID_RESERVAS" };
+
+			int filasActualizadas = 0;
+
+			// Iterar sobre los cambios
+			for (Map.Entry<int[], Object> entry : cambios.entrySet()) {
+				int[] cell = entry.getKey();
+				int fila = cell[0]; // Fila de la tabla
+				int columna = cell[1]; // Fila de la columna
+
+				Object nuevoValor = entry.getValue(); // Nuevo valor;
+
+				String nombreColumna = nombresColumnas[columna];
+
+				String query = "UPDATE huespedes SET " + nombreColumna + " = ? WHERE ID = ?";
+
+				final PreparedStatement statement = con.prepareStatement(query);
+
+				try (statement) {
+					if (nuevoValor instanceof String) {
+						statement.setString(1, (String) nuevoValor);
+					} else if (nuevoValor instanceof Integer) {
+						statement.setInt(1, (int) nuevoValor);
+					} else if (nuevoValor instanceof Double) {
+						statement.setDouble(1, (double) nuevoValor);
+					} else {
+						statement.setObject(1, nuevoValor); // Maneja otros tipos de datos
+					}
+
+					statement.setInt(2, id);
+					filasActualizadas = statement.executeUpdate();
+					// Limpiar el mapa de cambios una vez que se han guardado
+					cambios.clear();
+			
+				}
 		
-		Connection con = new ConnectionFactory().recuperaConexion();
-		
-		String[] nombresColumnas = {"", "NOMBRE", "APELLIDO", "FECHA_DE_NACIMIENTO", "NACIONALIDAD", 
-				"TELEFONO", "ID_RESERVAS"};
-		
-		int filasActualizadas = 0;
-		
-		//Iterar sobre los cambios
-		for(Map.Entry<int[], Object> entry: cambios.entrySet()) {
-			int[] cell = entry.getKey();
-			int fila = cell[0]		; // Fila de la tabla
-			int columna = cell[1]; // Fila de la columna
-			
-			Object nuevoValor = entry.getValue(); //Nuevo valor;
-			
-			String nombreColumna = nombresColumnas[columna];
-			
-			String query = "UPDATE huespedes SET " + nombreColumna + " = ? WHERE ID = ?";
-			
-			PreparedStatement statement = con.prepareStatement(query);
-			
-			if(nuevoValor instanceof String){
-				statement.setString(1, (String) nuevoValor);
-			}else if(nuevoValor instanceof Integer) {
-				statement.setInt(1, (int) nuevoValor);
-			}else if(nuevoValor instanceof Double) {
-				statement.setDouble(1, (double) nuevoValor);
-			}else {
-				statement.setObject(1, nuevoValor); //Maneja otros tipos de datos
 			}
-			
-			statement.setInt(2, id);
-			filasActualizadas = statement.executeUpdate();
+			return filasActualizadas;
 		}
-		
-		// Limpiar el mapa de cambios una vez que se han guardado
-        cambios.clear();
-    	con.close();
-    	
-    	return filasActualizadas;
 
 	}
 
 	public int eliminar(Integer id) throws SQLException {
-		
-		Connection con = new ConnectionFactory().recuperaConexion();
 
-		PreparedStatement statement = con.prepareStatement("DELETE FROM huespedes WHERE ID = ? " );
-		
-		statement.setInt(1, id);
-		
-		statement.execute(); 	
-		
-		int cantidadEliminada = statement.getUpdateCount();
-		
-		con.close();
-		
-		return cantidadEliminada;
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
+			final PreparedStatement statement = con.prepareStatement("DELETE FROM huespedes WHERE ID = ? ");
+			try (statement) {
+				statement.setInt(1, id);
+				statement.execute();
+				int cantidadEliminada = statement.getUpdateCount();
+				return cantidadEliminada;
+			}
 
+		}
 
 	}
 
 	public List<Map<String, String>> listar() throws SQLException {
-		Connection con = new ConnectionFactory().recuperaConexion();
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
 
-		PreparedStatement statement = con.prepareStatement("SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO,"
-				+ " NACIONALIDAD, TELEFONO, ID_RESERVA FROM huespedes");
+			final PreparedStatement statement = con.prepareStatement("SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO,"
+					+ " NACIONALIDAD, TELEFONO, ID_RESERVA FROM huespedes");
 
-		statement.execute();
+			try (statement) {
 
-		ResultSet resultSet = statement.getResultSet();
+				statement.execute();
 
-		List<Map<String, String>> resultado = new ArrayList<>();
+				ResultSet resultSet = statement.getResultSet();
 
-		// Mientras haya una fila en el resulSet, podemos iterar este objeto mediante
-		// resulSet.next()
-		while (resultSet.next()) {
-			Map<String, String> fila = new HashMap<>();
-			fila.put("ID", String.valueOf(resultSet.getInt("ID")));
-			fila.put("NOMBRE", resultSet.getString("NOMBRE"));
-			fila.put("APELLIDO", resultSet.getString("APELLIDO"));
-			fila.put("FECHA_DE_NACIMIENTO", String.valueOf(resultSet.getDate("FECHA_DE_NACIMIENTO")));
-			fila.put("NACIONALIDAD", resultSet.getString("NACIONALIDAD"));
-			fila.put("TELEFONO", resultSet.getString("TELEFONO"));
-			fila.put("ID_RESERVA", String.valueOf(resultSet.getInt("ID_RESERVA")));
+				List<Map<String, String>> resultado = new ArrayList<>();
 
-			resultado.add(fila);
+				// Mientras haya una fila en el resulSet, podemos iterar este objeto mediante
+				// resulSet.next()
+				while (resultSet.next()) {
+					Map<String, String> fila = new HashMap<>();
+					fila.put("ID", String.valueOf(resultSet.getInt("ID")));
+					fila.put("NOMBRE", resultSet.getString("NOMBRE"));
+					fila.put("APELLIDO", resultSet.getString("APELLIDO"));
+					fila.put("FECHA_DE_NACIMIENTO", String.valueOf(resultSet.getDate("FECHA_DE_NACIMIENTO")));
+					fila.put("NACIONALIDAD", resultSet.getString("NACIONALIDAD"));
+					fila.put("TELEFONO", resultSet.getString("TELEFONO"));
+					fila.put("ID_RESERVA", String.valueOf(resultSet.getInt("ID_RESERVA")));
+
+					resultado.add(fila);
+
+				}
+				return resultado;
+			}
 
 		}
-		;
 
-		con.close();
-		return resultado;
 	}
 
 	public void guardar(HashMap<String, String> huesped) throws SQLException {
-		Connection con = new ConnectionFactory().recuperaConexion();
-		
-		PreparedStatement statement = con.prepareStatement("INSERT INTO huespedes (NOMBRE, APELLIDO,FECHA_DE_NACIMIENTO, NACIONALIDAD,"
-				+ " TELEFONO, ID_RESERVA) VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
-		statement.setString(1, huesped.get("NOMBRE"));
-		statement.setString(2, huesped.get("APELLIDO"));
-		statement.setString(3, huesped.get("FECHA_DE_NACIMIENTO"));
-		statement.setString(4, huesped.get("NACIONALIDAD"));
-		statement.setString(5, huesped.get("TELEFONO"));
-		statement.setInt(6, Integer.valueOf(huesped.get("ID_RESERVA")));
-		
-		statement.execute();
-		
-		ResultSet resultSet = statement.getGeneratedKeys();
+		String nombre = huesped.get("NOMBRE");
+		String apellido = huesped.get("APELLIDO");
+		String fechaDeNacimiento = huesped.get("FECHA_DE_NACIMIENTO");
+		String nacionalidad = huesped.get("NACIONALIDAD");
+		String telefono = huesped.get("TELEFONO");
+		Integer idReserva = Integer.valueOf(huesped.get("ID_RESERVA"));
 
-		while (resultSet.next()) {
-			System.out.println("Fue insertado el producto de ID " + resultSet.getInt(1));
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
 
+			con.setAutoCommit(false);
+
+			final PreparedStatement statement = con
+					.prepareStatement(
+							"INSERT INTO huespedes (NOMBRE, APELLIDO,FECHA_DE_NACIMIENTO, NACIONALIDAD,"
+									+ " TELEFONO, ID_RESERVA) VALUES(?, ?, ?, ?, ?, ?)",
+							Statement.RETURN_GENERATED_KEYS);
+
+			try (statement) {
+				ejecutarRegistro(nombre, apellido, fechaDeNacimiento, nacionalidad, telefono, idReserva, con,
+						statement);
+				con.commit();
+				System.out.println("COMMIT");
+			} catch (Exception e) {
+				con.rollback();
+				System.out.println("ROLLBACK");
+			}
 		}
-		con.close();
+	}
+
+	private void ejecutarRegistro(String nombre, String apellido, String fechaDeNacimiento, String nacionalidad,
+			String telefono, Integer idReserva, Connection con, PreparedStatement statement) throws SQLException {
+		statement.setString(1, nombre);
+		statement.setString(2, apellido);
+		statement.setString(3, fechaDeNacimiento);
+		statement.setString(4, nacionalidad);
+		statement.setString(5, telefono);
+		statement.setInt(6, idReserva);
+
+		statement.execute();
+
+		final ResultSet resultSet = statement.getGeneratedKeys();
+
+		try (resultSet) {
+			while (resultSet.next()) {
+				System.out.println("Fue insertado el producto de ID: " + resultSet.getInt(1));
+			}
+		}
 	}
 
 	public List<Map<String, String>> busqueda(int idReserva, String apellido) throws SQLException {
-		Connection con = new ConnectionFactory().recuperaConexion();
-		String query = "SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO, NACIONALIDAD, TELEFONO, ID_RESERVA "
-	            + "FROM huespedes WHERE ID_RESERVA = ? AND APELLIDO = ?";
-		
-		PreparedStatement statement = con.prepareStatement(query);
-		statement.setInt(1, idReserva);
-		statement.setString(2, apellido);
-		
-		ResultSet resultSet = statement.executeQuery();
-		
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
 
-		List<Map<String, String>> resultado = new ArrayList<>();
-		
-		while (resultSet.next()) {
-			Map<String, String> fila = new HashMap<>();
-			fila.put("ID", String.valueOf(resultSet.getInt("ID")));
-			fila.put("NOMBRE", resultSet.getString("NOMBRE"));
-			fila.put("APELLIDO", resultSet.getString("APELLIDO"));
-			fila.put("FECHA_DE_NACIMIENTO", String.valueOf(resultSet.getDate("FECHA_DE_NACIMIENTO")));
-			fila.put("NACIONALIDAD", resultSet.getString("NACIONALIDAD"));
-			fila.put("TELEFONO", resultSet.getString("TELEFONO"));
-			fila.put("ID_RESERVA", String.valueOf(resultSet.getInt("ID_RESERVA")));
+			String query = "SELECT ID, NOMBRE, APELLIDO, FECHA_DE_NACIMIENTO, NACIONALIDAD, TELEFONO, ID_RESERVA "
+					+ "FROM huespedes WHERE ID_RESERVA = ? AND APELLIDO = ?";
 
-			resultado.add(fila);
+			final PreparedStatement statement = con.prepareStatement(query);
+			try (statement) {
 
+				statement.setInt(1, idReserva);
+				statement.setString(2, apellido);
+
+				ResultSet resultSet = statement.executeQuery();
+
+				List<Map<String, String>> resultado = new ArrayList<>();
+
+				while (resultSet.next()) {
+					Map<String, String> fila = new HashMap<>();
+					fila.put("ID", String.valueOf(resultSet.getInt("ID")));
+					fila.put("NOMBRE", resultSet.getString("NOMBRE"));
+					fila.put("APELLIDO", resultSet.getString("APELLIDO"));
+					fila.put("FECHA_DE_NACIMIENTO", String.valueOf(resultSet.getDate("FECHA_DE_NACIMIENTO")));
+					fila.put("NACIONALIDAD", resultSet.getString("NACIONALIDAD"));
+					fila.put("TELEFONO", resultSet.getString("TELEFONO"));
+					fila.put("ID_RESERVA", String.valueOf(resultSet.getInt("ID_RESERVA")));
+
+					resultado.add(fila);
+				}
+				return resultado;
+			}
 		}
-		;
-
-		con.close();
-		return resultado;
 	}
 }
