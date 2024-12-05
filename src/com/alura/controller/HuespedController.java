@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.alura.factory.ConnectionFactory;
-import com.mysql.cj.jdbc.DatabaseMetaData;
 
 public class HuespedController {
 
@@ -28,7 +26,6 @@ public class HuespedController {
 			// Iterar sobre los cambios
 			for (Map.Entry<int[], Object> entry : cambios.entrySet()) {
 				int[] cell = entry.getKey();
-				int fila = cell[0]; // Fila de la tabla
 				int columna = cell[1]; // Fila de la columna
 
 				Object nuevoValor = entry.getValue(); // Nuevo valor;
