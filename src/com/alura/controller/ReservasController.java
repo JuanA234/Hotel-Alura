@@ -139,4 +139,48 @@ public class ReservasController {
 		}
 	}
 
+	public int eliminar(Integer id) throws SQLException {
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
+			final PreparedStatement statement = con.prepareStatement("DELETE FROM reservas WHERE ID = ? ");
+			try (statement) {
+				statement.setInt(1, id);
+				statement.execute();
+				int cantidadEliminada = statement.getUpdateCount();
+				return cantidadEliminada;
+			}
+
+		}
+	}
+
+	public int editar(Map<int[], Object> cambios, Integer id) throws SQLException {
+
+		return 0;
+
+	}
+
+	public Map<String, String> obtenerUno(int id) throws SQLException {
+
+		final Connection con = new ConnectionFactory().recuperaConexion();
+		try (con) {
+			final PreparedStatement statement = con.prepareStatement(
+					"SELECT ID, FECHA_ENTRADA, FECHA_SALIDA, VALOR, FORMA_DE_PAGO FROM reservas " + "WHERE ID = ?");
+			try (statement) {
+				statement.setInt(1, id);
+
+				ResultSet resultSet = statement.executeQuery();
+
+				Map<String, String> resultado = new HashMap<>();
+				resultado.put("ID", String.valueOf(resultSet.getInt("ID")));
+				resultado.put("FECHA_ENTRADA", String.valueOf(resultSet.getDate("FECHA_ENTRADA")));
+				resultado.put("FECHA_SALIDA", String.valueOf(resultSet.getDate("FECHA_SALIDA")));
+				resultado.put("VALOR", String.valueOf(resultSet.getFloat("VALOR")));
+				resultado.put("FORMA_DE_PAGO", resultSet.getString("FORMA_DE_PAGO"));
+
+				return resultado;
+			}
+		}
+
+	}
+
 }

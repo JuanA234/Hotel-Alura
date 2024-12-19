@@ -16,48 +16,8 @@ public class HuespedController {
 	public int editar(Map<int[], Object> cambios, Integer id) throws SQLException{
 
 		final Connection con = new ConnectionFactory().recuperaConexion();
-		try (con) {
-
-			String[] nombresColumnas = { "", "NOMBRE", "APELLIDO", "FECHA_DE_NACIMIENTO", "NACIONALIDAD", "TELEFONO",
-					"ID_RESERVAS" };
-
-			int filasActualizadas = 0;
-
-			// Iterar sobre los cambios
-			for (Map.Entry<int[], Object> entry : cambios.entrySet()) {
-				int[] cell = entry.getKey();
-				int columna = cell[1]; // Fila de la columna
-
-				Object nuevoValor = entry.getValue(); // Nuevo valor;
-
-				String nombreColumna = nombresColumnas[columna];
-
-				String query = "UPDATE huespedes SET " + nombreColumna + " = ? WHERE ID = ?";
-
-				final PreparedStatement statement = con.prepareStatement(query);
-
-				try (statement) {
-					if (nuevoValor instanceof String) {
-						statement.setString(1, (String) nuevoValor);
-					} else if (nuevoValor instanceof Integer) {
-						statement.setInt(1, (int) nuevoValor);
-					} else if (nuevoValor instanceof Double) {
-						statement.setDouble(1, (double) nuevoValor);
-					} else {
-						statement.setObject(1, nuevoValor); // Maneja otros tipos de datos
-					}
-
-					statement.setInt(2, id);
-					filasActualizadas = statement.executeUpdate();
-					// Limpiar el mapa de cambios una vez que se han guardado
-					cambios.clear();
-			
-				}
+		return 0;
 		
-			}
-			return filasActualizadas;
-		}
-
 	}
 
 	public int eliminar(Integer id) throws SQLException {

@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.SystemColor;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -344,7 +345,15 @@ public class Busqueda extends JFrame {
 		btnEliminar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				eliminarHuesped();
+				
+				Component componenteSeleccionado = panel.getSelectedComponent();
+				//Determinar cuál tabla está activa
+				if(componenteSeleccionado == scroll_table) {
+					eliminarReserva();
+				}else if(componenteSeleccionado == scroll_tableHuespedes) {
+					eliminarHuesped();
+				}
+				
 				
 			}
 		});
@@ -426,34 +435,50 @@ public class Busqueda extends JFrame {
 					}
 					
 					modeloHuesped.removeRow(filaSeleccionada);
-					JOptionPane.showMessageDialog(this, cantidadEliminada +  " Item eliminado con éxito");
+					JOptionPane.showMessageDialog(this, cantidadEliminada +  " huesped eliminado con éxito");
 				
 			
-			}, ()->	JOptionPane.showMessageDialog(this, "Por favor elige un item"));
+			}, ()->	JOptionPane.showMessageDialog(this, "Por favor elige un huesped"));
 		}
 		
 	}
 	
-	private void editarHuesped(Map<int[], Object> cambios) {
-		int cantidadModificada = 0;
+	private void eliminarReserva() {
 		if(tieneFilaElegida()) {
-			try {
-				Integer id = Integer.valueOf(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
-				cantidadModificada = this.huespedController.editar(cambios, id);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			JOptionPane.showMessageDialog(this, cantidadModificada +  " Item modificado con éxito");
+			Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn())).
+			ifPresentOrElse(fila->{
+				Integer id = Integer.valueOf(modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+				Integer filaSeleccionada = tbReservas.getSelectedRow();
+				
+				int cantidadEliminada = 0;
+				
+				try {
+					cantidadEliminada = this.reservasController.eliminar(id);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				modelo.removeRow(filaSeleccionada);
+				JOptionPane.showMessageDialog(this, cantidadEliminada +  " reserva eliminada con éxito");
+				
+				
+			},  ()->JOptionPane.showMessageDialog(this, "Por favor elige una reserva"));
+			
 		}
+	}
+	
+	private void editarReserva() {
+		
+	}
+	private void editarHuesped(Map<int[], Object> cambios) {
 		
 	}
 	
 	
 	private boolean tieneFilaElegida() {
 		boolean siga = false;
-		int filaSeleccionada = tbHuespedes. getSelectedRow();
-		if(filaSeleccionada == -1) {
+		if(tbHuespedes.getSelectedRow() == -1 && tbReservas.getSelectedRow()==-1) {
 			JOptionPane.showMessageDialog(this, "Por favor elige un item");
 		}else {
 			siga = true;
